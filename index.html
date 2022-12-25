@@ -1,0 +1,183 @@
+<head>
+  <meta charset="utf-8">
+  <script src="https://unpkg.com/blockly"></script>
+<script src="https://unpkg.com/blockly/javascript_compressed"></script>
+<script src="https://unpkg.com/blockly/python_compressed"></script>
+  <script src="msg/js/ru.js" charset="utf-8"></script> <!--импорт библиотеки сообщений-->
+
+  <script src="blocks_def (3).js" charset="utf-8"> </script>
+  <script src="blocks_gen (3).js" charset="utf-8"> </script>
+</head>
+
+<body>
+  <div id="blocklyDiv" style="float: left; height: 70%; width: 100%;"></div> <!--настройки размера поля -->
+
+  <!--отображение левой панели -->
+<xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+  <category name="Настройка телеграм">
+    <block type="token">
+      <field name="token">YOU_TOKEN</field>
+    </block>
+    <block type="state">
+      <statement name="NAME">
+        <block type="state_f">
+          <field name="param">default</field>
+        </block>
+      </statement>
+    </block>
+    <block type="state_next">
+      <field name="NAME">default</field>
+    </block>
+    <block type="state_end"></block>
+    <block type="message_handler"></block>
+    <block type="state_function">
+      <field name="NAME">default</field>
+      <field name="NAME1">name_function</field>
+    </block>
+  </category>
+  <category name="Отправка сообщений">
+    <block type="answev_messege"></block>
+    <block type="answer_emoji"></block>
+    <block type="answer_gif"></block>
+    <block type="answer_stiker"></block>
+  </category>
+  <category name="Логика">
+    <block type ="create_list"></block>
+    <block type="for_k_i"></block>
+    <block type = "create_dick"></block>
+    <block type="list_find"></block>
+    <block type="controls_if"></block>
+    <block type="logic_compare">
+      <field name="OP">EQ</field>
+    </block>
+    <block type="text">
+      <field name="TEXT"></field>
+    </block>
+    <block type="if_k_i"></block>
+    <block type="state_value"></block>
+    <block type="lists_create_with">
+      <mutation items="3"></mutation>
+    </block>
+    <block type="lists_indexOf">
+      <field name="END">FIRST</field>
+      <value name="VALUE">
+        <block type="variables_get">
+          <field name="VAR" id="list">list</field>
+        </block>
+      </value>
+    </block>
+    <block type="random"></block>
+    <block type ="k_var"></block>
+    <block type="random_tr_fl"></block>
+
+    
+
+  </category>
+  <category name="Variables" colour="#a55b80" custom="VARIABLE"></category>
+</xml>
+
+
+  <div id="code">
+    <div id="controls">
+      <input id="inputId" type="button" value="Сохранить прогресс" onclick="Save()">
+      <input id="inputId1" type="button" value="Восстановить прогресс" onclick="Insert()">
+      <input id="inputId1" type="button" value="Бот готов" onclick="Donwload()">
+    </div> 
+    <textarea id="code_area" style="height: 24%; width: 100%"></textarea>
+  </div> 
+
+
+  <script>
+var toolbox = document.getElementById("toolbox");
+
+var options = { 
+  toolbox : toolbox, 
+  collapse : true, 
+  comments : false, 
+  disable : false, 
+  maxBlocks : 100, 
+  trashcan : true, 
+  horizontalLayout : false, 
+  toolboxPosition : 'start', 
+  css : true, 
+  media : 'https://blockly-demo.appspot.com/static/media/', 
+  rtl : false, 
+  scrollbars : true, 
+  sounds : true, 
+  oneBasedIndex : false, 
+  grid : {
+    spacing : 20, 
+    length : 1, 
+    colour : '#888', 
+    snap : false
+  }, 
+  zoom : {
+    controls : true, 
+    wheel : true, 
+    startScale : 1, 
+    maxScale : 3, 
+    minScale : 0.3, 
+    scaleSpeed : 1.2
+  }
+};
+
+const workspace = Blockly.inject('blocklyDiv', {toolbox: toolbox});
+
+
+    //вывод кода в правой части экрана
+    function myUpdateFunction(event) {
+      var code = Blockly.Python.workspaceToCode(workspace);
+      document.getElementById('code_area').value = code;
+    }
+    
+    workspace.addChangeListener(myUpdateFunction);
+
+
+    document.getElementById('code_area').readOnly = true;
+    function Save(){
+      var result = confirm("Сохранить текущий прогресс?\n Прошлая рабочая область будет удалена");
+      if (result){
+        var xml = Blockly.Xml.workspaceToDom(workspace);
+        var xml_text = Blockly.Xml.domToText(xml);
+        localStorage.setItem("blocklyXML", xml_text);
+        alert("рабочая область была сохранена");
+      }
+      
+    }
+    function Insert(){
+      var result = confirm("Восстановить рабочую область из последнего сохранения?\n Текущая рабочая область будет очищена");
+      if (result){
+        var xml = Blockly.Xml.textToDom(localStorage.getItem("blocklyXML"));
+        //Blockly.Xml.domToWorkspace(xml, workspace); 
+        Blockly.Xml.clearWorkspaceAndLoadFromXml(xml, workspace); 
+        alert("рабочая область была восстановлена");
+      }
+    }
+    
+    function Donwload(){
+      var result = confirm("Бот готов?\n");
+      if (result){
+     
+        if (localStorage.getItem('server_ip')!=null){
+            var server_ip = localStorage.getItem('server_ip');
+        }
+        
+        var code = Blockly.Python.workspaceToCode(workspace);
+        var dataStr = "data:text/python;charset=utf-8," +  "from random import choices\n\n" + encodeURIComponent(code);
+        var downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "answer" + ".py");
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+      }
+    }
+    window.onbeforeunload = function() {
+      return false;
+    };
+  </script>
+</body>
+
+
+
+
